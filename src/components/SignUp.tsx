@@ -1,160 +1,84 @@
 import React, { useContext } from 'react'
-import styled from 'styled-components'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Oval } from 'react-loader-spinner';
+import { useForm } from "react-hook-form";
+import { useMutation } from '@apollo/client'
 
 import Modal from './modal/Modal'
 import { AuthContext } from '../context/AuthContextProvider'
+import { SignupInputs, User } from '../types'
+import { SIGNUP } from '../apollo/mutations'
 
-interface Props {}
+// Styled-components
+import {
+  Button,
+  Divider,
+  FormContainer,
+  Header,
+  Input,
+  InputContainer,
+  StyledError,
+  StyledForm,
+  StyledInform,
+  StyledSocial,
+  StyledSwitchAction
+} from './SignupStyles'
+import { useRouter } from 'next/router';
 
-export const FormContainer = styled.div`
-  width: 95%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  margin: 2.5rem 0;
-`
 
-export const Header = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0;
-  margin: 0;
+interface Props { }
 
-  h2 {
-    margin: 0;
-  }
-`
 
-export const StyledForm = styled.form`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: stretch;
-  align-items: center;
-
-  .email_section_label {
-    margin: 0;
-    padding: 0;
-    color: ${(props) => props.theme.colors.teal};
-  }
-`
-
-export const InputContainer = styled.div`
-  width: 100%;
-  margin: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: stretch;
-  align-items: stretch;
-`
-
-export const Input = styled.input`
-  width: 100%;
-  height: 4rem;
-  border: 0.5px solid ${(props) => props.theme.colors.teal};
-  border-radius: ${(props) => props.theme.radius};
-  margin: 0.2rem 0;
-  padding: 1rem;
-  font-size: 1.4rem;
-  outline: none;
-  box-shadow: 2px 2px 4px ${(props) => props.theme.colors.lightGrey};
-`
-
-export const Button = styled.button`
-  width: 100%;
-  height: 4rem;
-  background: ${(props) => props.theme.backgroundColors.main};
-  color: white;
-  font-size: 1.8rem;
-  margin-top: 2rem;
-
-  &:hover {
-    background: ${(props) => props.theme.colors.darkTeal};
-  }
-`
-
-export const StyledError = styled.p`
-  margin: 0;
-  padding: 0;
-  color: red;
-  font-size: 1.5rem;
-`
-
-export const StyledSwitchAction = styled.div`
-  margin: 0;
-  padding: 0;
-  width: 100%;
-
-  p {
-    font-size: 1.2rem;
-    color: black;
-    padding: 0;
-    margin: 0;
-    margin-top: 1rem;
-  }
-`
-
-export const StyledInform = styled.div`
-  margin: 0;
-  padding: 0.2rem;
-  width: 100%;
-
-  p {
-    font-size: 1.4rem;
-    color: ${(props) => props.theme.colors.teal};
-    padding: 0;
-  }
-`
-
-export const StyledSocial = styled.div`
-  margin: 1rem auto;
-  padding: 0.2rem;
-  width: 100%;
-
-  button {
-    width: 100%;
-    margin: 1rem auto;
-    padding: 4%;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    color: white;
-
-    a {
-      color: white;
-      text-decoration: none;
-    }
-  }
-
-  .facebook {
-    background: ${(props) => props.theme.colors.fbBlue};
-
-    &:hover {
-      background: ${(props) => props.theme.colors.fbDarkBlue};
-    }
-  }
-
-  .google {
-    background: ${(props) => props.theme.colors.googleRed};
-
-    &:hover {
-      background: ${(props) => props.theme.colors.googleDarkRed};
-    }
-  }
-`
-
-export const Divider = styled.hr`
-  background-color: ${(props) => props.theme.colors.lightGrey};
-  height: 1px;
-  width: 100%;
-`
 
 const SignUp: React.FC<Props> = () => {
-  const { handleAuthAction } = useContext(AuthContext)
+
+  // router
+  const router = useRouter()
+
+  // # Context
+  const { handleAuthAction, setAuthUser } = useContext(AuthContext)
+
+  // HOOKS: useMutation
+  const [signup, { loading, error }] = useMutation<{ signup: User }, SignupInputs>(SIGNUP)
+  console.log(loading, error);
+
+  // HOOKS: use form
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<SignupInputs>();
+
+  // console.log(watch());
+
+  // HANDLE: Sign up
+  const submitSignup = handleSubmit(async ({ username, email, password }) => {
+    // console.log(username, email, password);
+
+    try {
+      const response = await signup({
+        variables: { username, email, password }
+      })
+
+      if (response.data?.signup) {
+        // console.log(response.data?.signup);
+
+        const { signup } = response.data
+        if (signup) {
+
+          // close from
+          handleAuthAction('close')
+
+          // set logged-in-user in context api
+          setAuthUser(signup)
+
+          // push --> dashboard
+          router.push('/dashboard')
+        }
+
+      }
+    } catch (error) {
+      setAuthUser(null)
+    }
+
+  })
+
 
   return (
     <Modal>
@@ -176,17 +100,29 @@ const SignUp: React.FC<Props> = () => {
 
         <Divider />
 
-        <StyledForm>
+        <StyledForm onSubmit={submitSignup}>
           <p className='email_section_label'>or sign up with an email</p>
           <InputContainer>
             <label>Username</label>
             <Input
               type='text'
-              name='username'
+              // name='username'
               id='username'
               placeholder='Your username'
               autoComplete='new-password'
+              {...register('username', {
+                required: 'Username is required.',
+                minLength: {
+                  value: 3,
+                  message: 'Username must be at least 3 characters.'
+                },
+                maxLength: {
+                  value: 60,
+                  message: 'Username must be not more than 60 characters.'
+                }
+              })}
             />
+            <StyledError>{errors.username?.message}</StyledError>
           </InputContainer>
 
           <InputContainer>
@@ -194,11 +130,19 @@ const SignUp: React.FC<Props> = () => {
 
             <Input
               type='text'
-              name='email'
+              // name='email'
               id='email'
               placeholder='Your email'
               autoComplete='new-password'
+              {...register('email', {
+                required: 'Email is required.',
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: 'Email is in wrong format.'
+                }
+              })}
             />
+            <StyledError>{errors.email?.message}</StyledError>
           </InputContainer>
 
           <InputContainer>
@@ -206,12 +150,33 @@ const SignUp: React.FC<Props> = () => {
 
             <Input
               type='password'
-              name='password'
+              // name='password'
               id='password'
               placeholder='Your password'
+              {...register('password', {
+                required: 'Password is required.',
+                minLength: {
+                  value: 6,
+                  message: 'Password must be at least 3 characters.'
+                },
+                maxLength: {
+                  value: 50,
+                  message: 'Password must be not more than 60 characters.'
+                }
+              })}
             />
+            <StyledError>{errors.password?.message}</StyledError>
           </InputContainer>
-          <Button disabled>Submit</Button>
+          <Button type='submit' disabled={loading} style={{ cursor: loading ? 'not-allowed' : 'pointer' }}>
+            {loading
+              ? <Oval color='white' height={30} width={30} ariaLabel="loading-indicator" />
+              : 'Submit'
+            }
+          </Button>
+
+          {/* TODO: error form backend */}
+          {error && <StyledError>{error.graphQLErrors[0]?.message || 'Sorry, something went wrong.'}</StyledError>}
+
         </StyledForm>
         <StyledSwitchAction>
           <p>
