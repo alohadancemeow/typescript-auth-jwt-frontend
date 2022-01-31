@@ -8,5 +8,8 @@ export interface User {
   created_at: string
 }
 
-// TYPE: User
+// TYPE: User signup
 export type SignupInputs = Pick<User, 'email' | 'username'> & { password: string }
+
+// TYPE: User signin
+export type SigninInputs = Omit<SignupInputs, 'username'> 

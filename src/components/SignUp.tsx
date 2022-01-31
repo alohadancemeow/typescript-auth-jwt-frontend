@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Oval } from 'react-loader-spinner';
 import { useForm } from "react-hook-form";
 import { useMutation } from '@apollo/client'
+import { useRouter } from 'next/router';
 
 import Modal from './modal/Modal'
 import { AuthContext } from '../context/AuthContextProvider'
@@ -23,12 +24,9 @@ import {
   StyledSocial,
   StyledSwitchAction
 } from './SignupStyles'
-import { useRouter } from 'next/router';
 
 
 interface Props { }
-
-
 
 const SignUp: React.FC<Props> = () => {
 
@@ -52,24 +50,16 @@ const SignUp: React.FC<Props> = () => {
     // console.log(username, email, password);
 
     try {
-      const response = await signup({
-        variables: { username, email, password }
-      })
+      const response = await signup({ variables: { username, email, password } })
 
       if (response.data?.signup) {
         // console.log(response.data?.signup);
 
         const { signup } = response.data
         if (signup) {
-
-          // close from
-          handleAuthAction('close')
-
-          // set logged-in-user in context api
-          setAuthUser(signup)
-
-          // push --> dashboard
-          router.push('/dashboard')
+          handleAuthAction('close') // close from
+          setAuthUser(signup)       // set logged-in-user in context api
+          router.push('/dashboard') // push --> dashboard
         }
 
       }

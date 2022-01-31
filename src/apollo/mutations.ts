@@ -21,3 +21,15 @@ export const SIGNOUT = gql`
         }
     }
 `
+
+export const SIGNIN = gql`
+    mutation Mutation($password: String!, $email: String!) {
+        signin(password: $password, email: $email) {
+            id
+            username
+            email
+            roles
+            createdAt
+        }
+    }
+`
