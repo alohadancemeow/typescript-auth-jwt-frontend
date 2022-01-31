@@ -38,7 +38,7 @@ const SignUp: React.FC<Props> = () => {
 
   // HOOKS: useMutation
   const [signup, { loading, error }] = useMutation<{ signup: User }, SignupInputs>(SIGNUP)
-  console.log(loading, error);
+  // console.log(loading, error);
 
   // HOOKS: use form
   const { register, handleSubmit, watch, formState: { errors } } = useForm<SignupInputs>();

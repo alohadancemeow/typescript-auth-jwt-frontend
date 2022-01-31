@@ -22,6 +22,7 @@ export const SIGNOUT = gql`
     }
 `
 
+// # Singin
 export const SIGNIN = gql`
     mutation Mutation($password: String!, $email: String!) {
         signin(password: $password, email: $email) {
@@ -30,6 +31,24 @@ export const SIGNIN = gql`
             email
             roles
             createdAt
+        }
+    }
+`
+
+// # Request reset password
+export const REQUEST_RESET_PASSWORD = gql`
+    mutation Mutation($email: String!) {
+        requestResetPassword(email: $email) {
+            message
+        }
+    }
+`
+
+// # Reset password
+export const RESET_PASSWORD = gql`
+    mutation Mutation($token: String!, $password: String!) {
+        resetPassword(token: $token, password: $password) {
+            message
         }
     }
 `
