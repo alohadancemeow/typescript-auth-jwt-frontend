@@ -30,7 +30,7 @@ export const AuthContext = createContext<AuthContextValues>(initialState)
 const AuthContextProvider: React.FC<Props> = ({ children }) => {
   const [authAction, setAuthAction] = useState<Actions>('close')
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null)
-  console.log(loggedInUser);
+  // console.log(loggedInUser);
 
   // Query me
   const { data } = useQuery<{ me: User }>(ME)

@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useForm } from "react-hook-form";
 import { useRouter } from 'next/router';
 import { useMutation } from '@apollo/client'
+import { Oval } from 'react-loader-spinner';
 
 import Modal from './modal/Modal'
 import { AuthContext } from '../context/AuthContextProvider'
@@ -23,7 +24,6 @@ import {
   StyledSocial,
   StyledError,
 } from './SignupStyles'
-import { Oval } from 'react-loader-spinner';
 
 interface Props { }
 
