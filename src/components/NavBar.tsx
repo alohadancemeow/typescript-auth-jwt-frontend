@@ -2,9 +2,11 @@ import React, { useContext } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { useMutation } from '@apollo/client'
 
 import { AuthContext } from '../context/AuthContextProvider'
 import { isAdmin } from '../helpers/authHelpers'
+import { SIGNOUT } from '../apollo/mutations'
 
 // Styled-components
 import {
@@ -20,11 +22,32 @@ interface Props { }
 
 const NavBar: React.FC<Props> = () => {
 
+  const router = useRouter()
+
   // # Context
   const { handleAuthAction, loggedInUser, setAuthUser } = useContext(AuthContext)
   // console.log(loggedInUser);
 
-  const router = useRouter()
+  // HOOKS: useMutation
+  const [signout] = useMutation<{ signout: { message: string } }>(SIGNOUT)
+
+  // HANDLE: sign out
+  const handleSignout = async () => {
+    try {
+      const response = await signout()
+      if (response.data?.signout.message) {
+
+        setAuthUser(null) // set auth user --> null
+
+        // sync signout
+        window.localStorage.setItem('signout', Date.now().toString())
+
+        router.push('/')  // push user --> homepage
+      }
+    } catch (error) {
+      alert('Sorry, cannot proceed.')
+    }
+  }
 
   return (
     <Header>
@@ -61,7 +84,7 @@ const NavBar: React.FC<Props> = () => {
 
           {loggedInUser
             ? <>
-              <button onClick={() => setAuthUser(null)}>Sign Out</button>
+              <button onClick={handleSignout}>Sign Out</button>
             </>
             : <>
               <button onClick={() => handleAuthAction('signin')}>Sign In</button>

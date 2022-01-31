@@ -12,3 +12,12 @@ export const SIGNUP = gql`
         }
     }
 `
+
+// # Signout
+export const SIGNOUT = gql`
+    mutation Mutation {
+        signout {
+            message
+        }
+    }
+`
