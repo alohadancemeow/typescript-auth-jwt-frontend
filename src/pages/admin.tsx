@@ -30,5 +30,5 @@ export default function AdminPage() {
 
   return !isAdmin(loggedInUser)
     ? <Rings ariaLabel="loading-indicator" />
-    : <Admin />
+    : <Admin admin={loggedInUser} />
 }

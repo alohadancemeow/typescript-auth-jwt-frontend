@@ -52,3 +52,16 @@ export const RESET_PASSWORD = gql`
         }
     }
 `
+
+// # Update roles
+export const UPDATE_ROLES = gql`
+    mutation Mutation($userId: String!, $newRoles: [String!]!) {
+        updateRoles(userId: $userId, newRoles: $newRoles) {
+            id
+            username
+            email
+            roles
+            createdAt
+        }
+    }
+`

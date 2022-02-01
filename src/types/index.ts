@@ -5,7 +5,7 @@ export interface User {
   username: string
   email: string
   roles: Role[]
-  created_at: string
+  createdAt: string
 }
 
 // TYPE: User signup
