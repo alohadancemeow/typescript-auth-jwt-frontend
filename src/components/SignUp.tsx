@@ -80,11 +80,11 @@ const SignUp: React.FC<Props> = () => {
         <StyledSocial>
           <button className='facebook'>
             <FontAwesomeIcon icon={['fab', 'facebook-f']} size='lg' />
-            <a>Sign in with Facebook</a>
+            <a href={`${process.env.NEXT_PUBLIC_FB_LOGIN_URI}`}>Sign in with Facebook</a>
           </button>
           <button className='google'>
             <FontAwesomeIcon icon={['fab', 'google']} />
-            <a>Sign in with Google</a>
+            <a href={`${process.env.NEXT_PUBLIC_GO_LOGIN_URI}`}>Sign in with Google</a>
           </button>
         </StyledSocial>
 
