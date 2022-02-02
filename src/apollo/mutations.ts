@@ -65,3 +65,12 @@ export const UPDATE_ROLES = gql`
         }
     }
 `
+
+// # Delete user
+export const DELETE_USER = gql`
+    mutation Mutation($userId: String!) {
+        deleteUser(userId: $userId) {
+            message
+        }
+    }
+`

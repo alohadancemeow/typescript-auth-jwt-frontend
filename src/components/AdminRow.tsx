@@ -3,7 +3,8 @@ import styled from 'styled-components'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useMutation } from '@apollo/client'
 import { Oval } from 'react-loader-spinner'
-import { UPDATE_ROLES } from '../apollo/mutations'
+import { DELETE_USER, UPDATE_ROLES } from '../apollo/mutations'
+import { USERS } from '../apollo/queries'
 
 import { Role, User } from '../types'
 import { isSuperAdmin } from '../helpers/authHelpers'
@@ -38,14 +39,28 @@ const AdminRow: React.FC<Props> = ({ user, admin }) => {
 
   // HOOKS: useMutation
   const [updateRoles, { loading, error }] = useMutation<{ updateRoles: User }, { userId: string; newRoles: Role[] }>(UPDATE_ROLES)
+  const [deleteUser, deleteUserResponse] = useMutation<{ deleteUser: { message: string } }, { userId: string }>(DELETE_USER)
 
 
-  // Error effect
+  // EFFECT: Errors
   useEffect(() => {
     if (error) alert(error.graphQLErrors[0].message || 'Sorry, something went wrong.')
   }, [error])
 
-  // HANDLE: handleSubmitUpdateRoles
+  useEffect(() => {
+    if (deleteUserResponse.error) alert(deleteUserResponse.error.graphQLErrors[0].message || 'Sorry, something went wrong.')
+  }, [deleteUserResponse.error])
+
+  // HANDLE: deleteUser, handleSubmitUpdateRoles 
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      const response = await deleteUser({ variables: { userId }, refetchQueries: [{ query: USERS }] })
+      if (response.data?.deleteUser.message) alert(response.data.deleteUser.message)
+    } catch (error) {
+      alert((error as Error).message)
+    }
+  }
+
   const handleSubmitUpdateRoles = async (userId: string) => {
     try {
 
@@ -59,7 +74,7 @@ const AdminRow: React.FC<Props> = ({ user, admin }) => {
       // check if the roles has not been changed, don't call to backend
       if (user.roles.length === newRoles.length) {
         const checkRoles = user.roles.map(role => newRoles.includes(role))
-        
+
         if (!checkRoles.includes(false)) {
           alert('Noting change')
           setIsEditing(false)
@@ -210,12 +225,18 @@ const AdminRow: React.FC<Props> = ({ user, admin }) => {
               </td>
           }
           <td>
-            <DeleteBtn
-              style={{ cursor: isEditing ? 'not-allowed' : undefined }}
-              disabled={isEditing}
-            >
-              <FontAwesomeIcon icon={['fas', 'trash-alt']} size='lg' />
-            </DeleteBtn>
+            {!isSuperAdmin(user)
+              ? <DeleteBtn
+                onClick={() => confirm('Are you sure to delete this user ?') ? handleDeleteUser(user.id) : null}
+                style={{ cursor: isEditing ? 'not-allowed' : undefined }}
+                disabled={isEditing}
+              >
+                {deleteUserResponse.loading
+                  ? <Oval color='teal' width={30} height={30} />
+                  : <FontAwesomeIcon icon={['fas', 'trash-alt']} size='lg' />
+                }
+              </DeleteBtn>
+              : null}
           </td>
         </>
       }
