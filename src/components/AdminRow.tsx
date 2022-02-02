@@ -82,8 +82,8 @@ const AdminRow: React.FC<Props> = ({ user, admin }) => {
         }
       }
 
-      // else: update roles, then close editing mode
-      const response = await updateRoles({ variables: { userId, newRoles } })
+      // else: update roles, reload user, then close editing mode
+      const response = await updateRoles({ variables: { userId, newRoles }, refetchQueries: [{ query: USERS }] })
       if (response.data?.updateRoles) {
         setIsEditing(false)
       }
